@@ -97,6 +97,10 @@ exports.getAllStuff = (req, res, next) => {
 */
 
 const pool = require('../models/Thing');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+
 
 const getStudents = (req,res) => {
     pool.query("SELECT * FROM student", (error,results) => {
@@ -107,7 +111,7 @@ const getStudents = (req,res) => {
 
 const getoneStudent = (req,res) => {
   const id = req.params.id;
-  pool.query("SELECT name_etudiant FROM etudiant WHERE id_etudiant ="+id, (error,results) => {
+  pool.query("SELECT firstname_student FROM student WHERE id_student ="+id, (error,results) => {
       if (error) throw error;
       res.status(200).json(results.rows);
   });
@@ -120,8 +124,109 @@ const getavis = (req,res) => {
   });
 };
 
+const getoneAvis = (req,res) => {
+  const id = req.params.id;
+  pool.query("SELECT * FROM avis WHERE id_avis ="+id, (error,results) => {
+      if (error) throw error;
+      res.status(200).json(results.rows);
+  });
+};
+
+const createAvis = (req, res) => {
+    const ida = req.body.ida;
+    const avis = req.body.avis;
+    const date = req.body.date;
+    const ids = req.body.ids;
+    const idc = req.body.idc;
+    const note = req.body.note;
+    pool.query('INSERT INTO avis (id_avis, text_avis, date_avis, fk_student, fk_company, note_avis) VALUES ($1, $2, $3, $4, $5, $6)', [ida, avis,date,ids,idc,note], (error,results) => {
+      if (error) {
+        throw error
+      }
+      res.status(201).send(`idavis added: ${ida}`);
+  });
+};
+
+const createCompany = (req, res) => {
+  const id = req.body.id;
+  const name = req.body.name;
+  pool.query('INSERT INTO company (id_company, name_company) VALUES ($1, $2)', [id, name], (error, results) => {
+    if (error) {
+      throw error
+    }
+    res.status(201).send(`company added: ${name}`)
+  })
+};
+
+const createStudent = (req, res) => {
+  
+  const id = req.body.id;
+  const firstname = req.body.firstname;
+  const lastname = req.body.lastname;
+  const speciality = req.body.speciality;
+  const university = req.body.university;
+  const email = req.body.email;
+  const passhash = bcrypt.hash(req.body.passhash, 10);
+
+  bcrypt.hash(req.body.passhash, 10)
+    .then(hash => {
+      const passhash = hash;
+      pool.query('INSERT INTO student (id_student, firstname_student, lastname_student, fk_university, fk_speciality,email_student,passhash_student) VALUES ($1,$2,$3,$4,$5,$6,$7)', 
+      [id, firstname,lastname,university,speciality,email,passhash], (error, results) => {
+        if (error) {
+          throw error
+        }
+        res.status(201).send(`student added: ${email}`)
+    })
+  }).catch(error => res.status(500).json({ error }));
+};
+
+
+const loginStudent = (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  pool.query('SELECT * FROM student WHERE email_student = $1',[email], (error, results) => {
+    if (error) {
+      throw error
+    };
+    if (results.rows == '') {
+      return res.status(401).json({ error: 'Utilisateur non trouvé !' });
+    }
+    else {
+      // return res.status(201).send(results.rows[0].passhash_student)
+      bcrypt.compare(req.body.password, results.rows[0].passhash_student)
+      .then(valid => {
+        if (!valid) {
+          return res.status(401).json({ error: 'Mot de passe incorrect !' });
+        }
+        res.status(200).json({
+          userId: results.rows[0].id_student,
+          token: jwt.sign(
+            { userId: results.rows[0].id_student },
+            'RANDOM_TOKEN_SECRET',
+            { expiresIn: '1h' }
+          )
+          });
+      })
+    }
+  });
+};
+
+const getavisOfStudent = (req,res) => {
+  pool.query("SELECT * FROM avis", (error,results) => {
+      if (error) throw error;
+      res.status(200).json(results.rows);
+  });
+};
+
 module.exports = {
     getStudents,
     getoneStudent,
     getavis,
+    getoneAvis,
+    createAvis,
+    createCompany,
+    createStudent,
+    loginStudent,
+    getavisOfStudent,
 };
