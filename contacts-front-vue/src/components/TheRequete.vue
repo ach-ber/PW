@@ -10,7 +10,7 @@ export default {
   },
   methods: {
     updateInfo() {
-        axios.get('http://localhost:4000/api/v1/students').then(response => this.data = (response.data[0].firstname_student))
+        axios.get('http://localhost:4000/api/').then(response => this.data = (response.data[0].firstname_student))
       }
     }
 };

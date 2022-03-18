@@ -166,13 +166,13 @@ const createStudent = (req, res) => {
   const speciality = req.body.speciality;
   const university = req.body.university;
   const email = req.body.email;
-  const passhash = bcrypt.hash(req.body.passhash, 10);
+  const password = bcrypt.hash(req.body.password, 10);
 
-  bcrypt.hash(req.body.passhash, 10)
+  bcrypt.hash(req.body.password, 10)
     .then(hash => {
-      const passhash = hash;
+      const password = hash;
       pool.query('INSERT INTO student (id_student, firstname_student, lastname_student, fk_university, fk_speciality,email_student,passhash_student) VALUES ($1,$2,$3,$4,$5,$6,$7)', 
-      [id, firstname,lastname,university,speciality,email,passhash], (error, results) => {
+      [id, firstname,lastname,university,speciality,email,password], (error, results) => {
         if (error) {
           throw error
         }
@@ -194,7 +194,7 @@ const loginStudent = (req, res) => {
     }
     else {
       // return res.status(201).send(results.rows[0].passhash_student)
-      bcrypt.compare(req.body.password, results.rows[0].passhash_student)
+      bcrypt.compare(password, results.rows[0].passhash_student)
       .then(valid => {
         if (!valid) {
           return res.status(401).json({ error: 'Mot de passe incorrect !' });
@@ -219,6 +219,31 @@ const getavisOfStudent = (req,res) => {
   });
 };
 
+
+const getconditions = (req, res) => {
+  const speciality = 1;
+  const university = 1;
+  pool.query("SELECT * FROM avis, student WHERE id_student = fk_student AND fk_speciality ="+speciality+"AND fk_university ="+university, (error,results) => {
+      if (error) throw error;
+      res.status(200).json(results.rows);
+  });
+};
+
+const getCompany = (req, res) => {
+  pool.query("select id_company as value, name_company as label from company", (error,results) => {
+      if (error) throw error;
+      res.status(200).json(results.rows);
+  });
+};
+
+const getAvisofoneStudent = (req,res) => {
+  const id = req.params.id;
+  pool.query("SELECT * FROM avis WHERE fk_student ="+id, (error,results) => {
+      if (error) throw error;
+      res.status(200).json(results.rows);
+  });
+};
+
 module.exports = {
     getStudents,
     getoneStudent,
@@ -229,4 +254,7 @@ module.exports = {
     createStudent,
     loginStudent,
     getavisOfStudent,
+    getconditions,
+    getCompany,
+    getAvisofoneStudent,
 };
