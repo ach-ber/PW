@@ -1,20 +1,22 @@
 <template>
   <header>
+    <button v-if="connected" @click="logout">Déconnexion</button>
     <div>{{ $store.state.isConnected }} | {{ $store.state.ID }}</div>
     <router-link class="routerElement" to="/">Home</router-link>
     <router-link class="routerElement" to="/about">About</router-link>
-    <router-link class="routerElement" to="/TheRequete">requete</router-link>
-    <router-link class="routerElement" to="/LoginView">Login</router-link>
-    <router-link class="routerElement" to="/AccountView">Account</router-link>
-    <router-link class="routerElement" to="/SigninView">Signin</router-link>
-    <router-link class="routerElement" to="/LoginViewBis">Loginbis</router-link>
-    <router-link class="routerElement" to="/PublishView">PublishView</router-link>
-    <router-link class="routerElement" to="/ModifyAvis">ModifyAvis</router-link>
+    <router-link v-if="connected" class="routerElement" to="/AccountView">Account</router-link>
+    <router-link class="routerElement" to="/SigninViewBis">SignIn</router-link>
+    <router-link v-if="!connected" class="routerElement" to="/LoginViewBis">Login</router-link>
+    <router-link v-if="connected" class="routerElement" to="/PublishView">PublishView</router-link>
+    <router-link v-if="connected"  class="routerElement" to="/ModifyAvis">ModifyAvis</router-link>
   </header>
   <router-view></router-view>
 </template>
 
 <script>
+
+import router  from './router';
+
 export default {
   name: 'App',
   components: {
@@ -22,13 +24,27 @@ export default {
   },
   data() {
     return {
+      connected:false,
     }
   },
   methods: {
     VERIF_TOKEN() {
       this.$store.commit("VERIF_TOKEN")
+    },
+    logout() {
+      sessionStorage.removeItem('token');
+      this.$store.state.ID = 0;
+      this.$store.state.isConnected = 'Pas Connecté';
+      router.go();
     }
   },
+
+  updated() {
+    if (sessionStorage.getItem('token')) {
+      this.connected = true;
+    }
+  },
+
   Monted() {
     this.VERIF_TOKEN();
   },

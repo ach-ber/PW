@@ -26,10 +26,16 @@ const auth = require('../middleware/authentification.js');
 router.get("/avisConditions", controller.getconditions);
 router.get("/avis", controller.getavis);
 router.get("/student", controller.getStudents);
+router.get("/student/:id/avis", controller.getAvisofoneStudent);
+router.get("/student/:id/avis/:idavis", controller.getoneAvisofoneStudent);
 router.get("/student/:id", controller.getoneStudent);
 router.get("/avis/:id", controller.getoneAvis);
 router.get("/company", controller.getCompany);
-router.get("/student/:id/avis", controller.getAvisofoneStudent);
+router.get("/studentemail", controller.getStudentsemail);
+router.get("/speciality", controller.getspeciality);
+router.get("/university", controller.getuniversity);
+
+
 
 
 
@@ -37,6 +43,8 @@ router.post("/createavis", controller.createAvis);
 router.post("/createcompany", controller.createCompany);
 router.post("/createStudent", controller.createStudent);
 router.post("/login", controller.loginStudent);
+
+router.put("/student/:id/avis/:idavis", controller.modifyAvis);
 
 
 //router.get("/user/avis", controller.getavisOfStudent);

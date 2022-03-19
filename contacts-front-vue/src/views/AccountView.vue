@@ -1,36 +1,33 @@
 <template>
   <div>
-    <h1>This is Account page</h1>{{ data }}<br>{{ $store.state.TOKEN }}
-    <button type="button" @click="requete" >requete</button>
+    <h1>This is Account page</h1>{{ data }}
+    <AvisComponent v-for="avis in dataAvis"  :key="avis.id_avis" :id="avis.id_avis" :avis="avis.text_avis"  v-bind:href="urlAvis+avis.id_avis"/>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
 
 const axios = require("axios");
+import AvisComponent from '@/components/AvisComponent.vue'
 
 export default {
   name: 'AccountView',
   components: {
-    
+    AvisComponent,
   },
 
   data() {
     return {
-      count: 0,
-      data:'rien',
-      token:""
+      dataAvis:'aucun avis',
     }
   },
 
   methods: {
-    requete() {
-        axios.get('http://localhost:4000/api/user/avis',{
-  headers: {
-    'Authorization': 'Basic '+sessionStorage.getItem('token')}
-  }).then(response => this.data = (response.data))}
   },
+  beforeCreate() {
+    axios.get('http://localhost:4000/api/student/'+this.$store.state.ID+'/avis').then(response => this.dataAvis = (response.data))
+  },
+
 }
 
 

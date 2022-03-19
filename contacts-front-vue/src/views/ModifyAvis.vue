@@ -1,12 +1,13 @@
 <template>
   <section>
-    <div class="success" v-if="completePublish">Submitted successfully!</div>
+    <div class="success" v-if="completeModify">Submitted successfully!</div>
     <FormKit v-model="formDataAvis" type="form" id="formModify" submit-label="Modify" @submit="Modify">
         <FormKit type="text" name="title" label="title" validation="required" />
         <FormKit type="textarea" name="avistext" label="Décrivez votre stage !" validation="required" />
-        <FormKit type="range" label="note" min="0" max="10" />
-        <FormKit type="select" name="university" label="university" placeholder="Select a company" :options="companies" validation="required" />
+        <FormKit type="range" name="note" label="note" min="0" max="10" />
+        <FormKit type="select" name="company" label="company" placeholder="Select a company" :options="companies" validation="required" />
     </FormKit>
+    <p>{{formDataAvis}}</p><br><p>{{test}}</p>
     
   </section>
 </template>
@@ -25,34 +26,43 @@ export default {
     return {
         companies:[],
         company: [],
-        formDataAvis:{"title":"titre importé"},
+        formDataAvis:[{}],
+        test:"",
+        actual:0,
     }
   },
   methods: {
 
     Modify() {
-        /*
-        axios.post('http://localhost:4000/api/createStudent',
+        axios.put('http://localhost:4000/api/student/1/avis/2',
         {
-            "id":3,
-            "email":this.email,
-            "firstname":this.firstname,
-            "lastname":this.lastname,
-            "speciality":this.speciality,
-            "university":this.university,
-            "password":this.password1
-        })
-        */
-        this.completePublish = true;
-        this.$formkit.reset('formPublish');
+            "text":this.formDataAvis.avistext,
+            "title":this.formDataAvis.title,
+            "note":this.formDataAvis.note,
+        }).then(
+          ()=> {
+            axios.get('http://localhost:4000/api/student/1/avis/1').then(response => this.test = (response.data[0]));
+            this.completeModify = true;
+          }
+        )
         //router.push('/test');
     },
   },
+
+
   beforeCreate() {
-    axios.get('http://localhost:4000/api/company').then(response => this.companies = (response.data))//.then(
+    axios.get('http://localhost:4000/api/company').then(response => this.companies = (response.data))
         //() => {for (const element of this.companies) {this.stateList.push({label:element.name_company,value:element.id_company})}})
   },
-
+  created() {
+    axios.get('http://localhost:4000/api/student/1/avis/1').then(response => 
+    {this.test = (response.data[0]);
+    this.formDataAvis.title = this.test.title;
+    this.formDataAvis.note = this.test.note;
+    this.formDataAvis.avistext = this.test.avistext;
+    this.formDataAvis.company = this.test.value;
+    })
+  },
 
 };
 </script>

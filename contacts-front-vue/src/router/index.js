@@ -1,6 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import HelloWorld from '../components/HelloWorld.vue'
-import TheRequete from '../components/TheRequete.vue'
 import HomeView from '@/views/HomeView.vue'
 import AvisView from '@/views/AvisView.vue'
 import LoginView from '@/views/LoginView.vue'
@@ -42,11 +41,6 @@ const routes = [
     path: '/AvisView/:id',
     name: 'AvisView',
     component: AvisView
-  },
-  {
-    path: '/TheRequete',
-    name: 'TheRequete',
-    component: TheRequete
   },
   {
     path: '/',
