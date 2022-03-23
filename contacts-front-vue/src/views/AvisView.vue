@@ -1,32 +1,31 @@
 <template>
-  <div>id: {{ idAvis }}</div>
-  <AvisComponent  :id="idAvis" :avis="AvisInfo[0].text_avis" />
+  <section>
+
+    <FullAvisComponent  :date="dataAvis.date_avis" :title="dataAvis.title_avis" :avis="dataAvis.text_avis" :note="dataAvis.note_avis" :company="dataAvis.name_company" :speciality="dataAvis.name_speciality"  :university="dataAvis.name_university" :email="dataAvis.email_student" />
+    
+  </section>
+  
 </template>
 
 <script>
 
-
 const axios = require("axios");
-import AvisComponent from '@/components/AvisComponent.vue'
+import FullAvisComponent from '@/components/FullAvisComponent.vue'
 
 export default {
   name: 'AvisView',
   components: {
-    AvisComponent,
+    FullAvisComponent,
   },
 
   data() {
     return {
-      idAvis:'',  
-      AvisData:'rien',
-      Avistext:"sjdbjebjebebj",
-      AvisInfo:'',
+      dataAvis:[],  
     }
   },
 
-  created() {
-    this.idAvis=this.$route.params.id;
-    axios.get('http://localhost:4000/api/avis/'+this.idAvis).then(response => this.AvisInfo = (response.data))
+  beforeCreate() {
+    axios.get('http://localhost:4000/api/avis/'+this.$route.params.id).then(response => this.dataAvis = (response.data[0]));
   },
 }
 

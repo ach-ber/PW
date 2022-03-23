@@ -18,7 +18,7 @@ const routes = [
     component: HelloWorld
   },
   {
-    path: '/ModifyAvis',
+    path: '/ModifyAvis/:id',
     name: 'ModifyAvis',
     component: ModifyAvis
   },

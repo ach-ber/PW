@@ -1,10 +1,10 @@
 <template>
   <section>
     <FormKit v-model="formData" id="formLogin" type="form" submit-label="Login" @submit="login">
+      <h2>Login</h2>
       <FormKit name="email" label="Email address" validation="required|email" />
       <FormKit type="password" name="password" label="Password" validation="required" />
     </FormKit>
-    <p>{{email}}</p><br><p>{{password}}</p>
         
   </section>
 </template>
@@ -32,14 +32,14 @@ export default {
     login() {
         axios.post('http://localhost:4000/api/login',
         {
-            "email":this.formData.email,
-            "password":this.formData.password
+            "email":this.formData.email.toString(),
+            "password":this.formData.password.toString()
         }
         ).then((response) => {
             sessionStorage.setItem('token',response.data.token);
             this.$store.state.ID = response.data.userId;
             this.$store.state.isConnected = "Connecté !";
-            router.push('/AccountVue');
+            router.push('/AccountView');
         })
     }
   },
@@ -48,13 +48,73 @@ export default {
 
 <style>
 
-[data-invalid] input {
-  border-color: red;
-  box-shadow: 0 0 0 1px red;
+section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-flow: column wrap;
+  font-family: 'Montserrat';
 }
 
-.formkit-messages li {
-    color:red;
+section #formLogin {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  flex-flow: wrap column;
+  width:500px;
+  border: solid 1px #dadce0;
+  margin-top: 40px;
 }
+
+section form h2{
+  font-weight: 600;
+  color: #000;
+  font-size: 2.25rem;
+  margin: 40px 0px 40px 0px;
+}
+
+form>div>div .formkit-label {
+  font-family: 'Montserrat';
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 1.2;
+  color:black;
+}
+
+section #formLogin>div {
+  padding:0px;
+  display: flex;
+  justify-content: flex-start;
+  flex-flow: column wrap;
+  height: 120px;
+}
+
+section #formLogin>div:last-child div  {
+  display: flex;
+  justify-content: center;
+}
+
+section #formLogin>div:last-child div div {
+  display: flex;
+  align-items: center;
+}
+
+section #formLogin>div:last-child div div button,section #formside form>div div div button{
+  width: 180px;
+  margin:0px;
+  border: solid 1px #1b46c2;
+  background-color:#1b46c2;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+
+section #formLogin>div>div{
+  width: 460px;
+  
+}
+
+
+
 
 </style>

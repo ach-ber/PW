@@ -4,6 +4,7 @@ import router from './router'
 import store from './store'
 
 import { plugin, defaultConfig } from '@formkit/vue'
+import '@formkit/themes/genesis'
 
 
 
