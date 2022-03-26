@@ -59,7 +59,7 @@ export default {
 
     SignIn() {
         //router.push('/test');
-        axios.post('http://localhost:4000/api/createStudent',this.formData);
+        axios.post(this.$store.state.URLAPI+'/createStudent',this.formData);
         this.completeSignIn =true;
         this.$formkit.reset('formSignIn');
         router.go();
@@ -67,8 +67,8 @@ export default {
   },
 
   beforeCreate() {
-    axios.get('http://localhost:4000/api/university').then(response => this.universities = (response.data))
-    axios.get('http://localhost:4000/api/speciality').then(response => this.specialities = (response.data))
+    axios.get(this.$store.state.URLAPI+'/university').then(response => this.universities = (response.data))
+    axios.get(this.$store.state.URLAPI+'/speciality').then(response => this.specialities = (response.data))
   },
 
 };

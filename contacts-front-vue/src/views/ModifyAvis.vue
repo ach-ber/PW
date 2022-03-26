@@ -1,6 +1,7 @@
 <template>
   <section>
     <div class="success" v-if="completeModify">Submitted successfully!</div>
+    <div class="success" v-if="notcompleteModify">not submit</div>
     <FormKit v-model="formDataAvis" type="form" id="formModify" submit-label="Modifier" @submit="Modify">
         <h2>Modifiez votre Avis</h2>
         <FormKit type="text" name="title" label="title" validation="required" />
@@ -35,31 +36,38 @@ export default {
   methods: {
 
     Modify() {
-        axios.put('http://localhost:4000/api/student/'+this.$store.state.ID+'/avis/'+this.$route.params.id,
+        axios.put(this.$store.state.URLAPI+'/student/'+this.$store.state.ID+'/avis/'+this.$route.params.id,
         {
             "text":this.formDataAvis.avistext.toString(),
             "title":this.formDataAvis.title.toString(),
             "note":this.formDataAvis.note,
             "date":this.formDataAvis.date,
+        },
+        {
+          headers: {
+            'Authorization': `Basic ${sessionStorage.getItem('token')}` 
+          }
         }).then(
           ()=> {
             //axios.get('http://localhost:4000/api/student/'+this.$store.state.ID+'/avis/'+this.$route.params.id).then(response => this.test = (response.data[0]));
             this.completeModify = true;
             router.push('/AccountView');
           }
-        )
+        ).catch(() => {
+          this.notcompleteModify = true;
+        })
         //router.push('/test');
     },
   },
 
 
   beforeCreate() {
-    axios.get('http://localhost:4000/api/company').then(response => this.companies = (response.data));
+    axios.get(this.$store.state.URLAPI+'/company').then(response => this.companies = (response.data));
     
         //() => {for (const element of this.companies) {this.stateList.push({label:element.name_company,value:element.id_company})}})
   },
   created() {
-    axios.get('http://localhost:4000/api/student/2/avis/'+this.$route.params.id).then(response => 
+    axios.get(this.$store.state.URLAPI+'/student/2/avis/'+this.$route.params.id).then(response => 
     {this.test = (response.data[0]);
     this.formDataAvis.title = this.test.title;
     this.formDataAvis.note = this.test.note;

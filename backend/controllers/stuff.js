@@ -1,100 +1,3 @@
-/*
-const Thing = require('../models/thing');
-
-exports.createThing = (req, res, next) => {
-  const thing = new Thing({
-    title: req.body.title,
-    description: req.body.description,
-    imageUrl: req.body.imageUrl,
-    price: req.body.price,
-    userId: req.body.userId
-  });
-  thing.save().then(
-    () => {
-      res.status(201).json({
-        message: 'Post saved successfully!'
-      });
-    }
-  ).catch(
-    (error) => {
-      res.status(400).json({
-        error: error
-      });
-    }
-  );
-};
-
-exports.getOneThing = (req, res, next) => {
-  Thing.findOne({
-    _id: req.params.id
-  }).then(
-    (thing) => {
-      res.status(200).json(thing);
-    }
-  ).catch(
-    (error) => {
-      res.status(404).json({
-        error: error
-      });
-    }
-  );
-};
-
-exports.modifyThing = (req, res, next) => {
-  const thing = new Thing({
-    _id: req.params.id,
-    title: req.body.title,
-    description: req.body.description,
-    imageUrl: req.body.imageUrl,
-    price: req.body.price,
-    userId: req.body.userId
-  });
-  Thing.updateOne({_id: req.params.id}, thing).then(
-    () => {
-      res.status(201).json({
-        message: 'Thing updated successfully!'
-      });
-    }
-  ).catch(
-    (error) => {
-      res.status(400).json({
-        error: error
-      });
-    }
-  );
-};
-
-exports.deleteThing = (req, res, next) => {
-  Thing.deleteOne({_id: req.params.id}).then(
-    () => {
-      res.status(200).json({
-        message: 'Deleted!'
-      });
-    }
-  ).catch(
-    (error) => {
-      res.status(400).json({
-        error: error
-      });
-    }
-  );
-};
-
-exports.getAllStuff = (req, res, next) => {
-  Thing.find().then(
-    (things) => {
-      res.status(200).json(things);
-    }
-  ).catch(
-    (error) => {
-      res.status(400).json({
-        error: error
-      });
-    }
-  );
-};
-
-*/
 
 const pool = require('../models/Thing');
 const bcrypt = require('bcrypt');
@@ -102,31 +5,9 @@ const jwt = require('jsonwebtoken');
 
 
 
-const getStudents = (req,res) => {
-    pool.query("SELECT * FROM student", (error,results) => {
-        if (error) throw error;
-        res.status(200).json(results.rows);
-    });
-};
-
-const getoneStudent = (req,res) => {
-  const id = req.params.id;
-  pool.query("SELECT firstname_student,lastname_student, email_student FROM student WHERE id_student ="+id, (error,results) => {
-      if (error) throw error;
-      res.status(200).json(results.rows);
-  });
-};
 
 const getavis = (req,res) => {
   pool.query("SELECT * FROM avis", (error,results) => {
-      if (error) throw error;
-      res.status(200).json(results.rows);
-  });
-};
-
-const getoneAvis = (req,res) => {
-  const id = req.params.id;
-  pool.query("SELECT text_avis,date_avis,title_avis,name_company,name_speciality, name_university ,email_student,note_avis FROM avis,company,speciality,student,university where fk_university = id_university and fk_company = id_company and fk_speciality = id_speciality and fk_student = id_student and id_avis ="+id, (error,results) => {
       if (error) throw error;
       res.status(200).json(results.rows);
   });
@@ -146,29 +27,92 @@ const getRecentAvis = (req,res) => {
   });
 };
 
-const createAvis = (req, res) => {
-    const avis = req.body.avis;
-    const date = req.body.date;
-    const ids = req.body.ids;
-    const idc = req.body.idc;
-    const note = req.body.note;
-    const title = req.body.title;
-    pool.query('INSERT INTO avis ( text_avis, date_avis, fk_student, fk_company, note_avis, title_avis) VALUES ($1, $2, $3, $4, $5,$6)', [ avis,date,ids,idc,note,title], (error,results) => {
-      if (error) {
-        throw error
-      }
-      res.status(201).send(`idavis added: ${ids}`);
+
+const getoneAvis = (req,res) => {
+  const idavis = Number(req.params.idavis);
+  pool.query('SELECT text_avis,date_avis,title_avis,name_company,name_speciality, name_university ,email_student,note_avis FROM avis,company,speciality,student,university where fk_university = id_university and fk_company = id_company and fk_speciality = id_speciality and fk_student = id_student and id_avis = $1;',[idavis], (error,results) => {
+      if (error) throw error;
+      res.status(200).json(results.rows);
   });
 };
 
-const createCompany = (req, res) => {
-  const name = req.body.name;
-  pool.query('INSERT INTO company (name_company) VALUES ($1)', [name], (error, results) => {
-    if (error) {
-      throw error
-    }
-    res.status(201).send(`company added: ${name}`)
-  })
+const getavisSorted = (req, res) => {
+  const speciality = Number(req.params.idspec);
+  const university = Number(req.params.iduniv);
+  pool.query('SELECT id_avis,text_avis, date_avis,note_avis,title_avis,name_company FROM avis,company,student WHERE id_student = fk_student and id_company = fk_company  AND fk_speciality = $1  AND fk_university =$2 order by note_avis desc;', [speciality,university],(error,results) => {
+      if (error) throw error;
+      res.status(200).json(results.rows);
+  });
+};
+
+const getAvisofoneStudent = (req,res) => {
+  const id = Number(req.params.id)
+  pool.query("SELECT * FROM avis,company  where fk_company = id_company and fk_student = $1",[id], (error,results) => {
+      if (error) throw error;
+      if (results.rows == '') {
+        return res.status(404).send('Aucun avis trouvé pour cet étudiant!');
+      }
+      else {
+        res.status(200).json(results.rows);
+      }
+  });
+};
+
+const getoneAvisofoneStudent = (req,res) => {
+  const id = Number(req.params.id);
+  const idavis = Number(req.params.idavis);
+  pool.query("SELECT text_avis as avistext, date_avis as date,note_avis as note,title_avis as title FROM avis WHERE fk_student = $1 AND id_avis = $2",[id,idavis], (error,results) => {
+      if (error) throw error;
+      if (results.rows == '') {
+        return res.status(404).send('Aucun avis trouvé pour cet étudiant et cet idavis !');
+      }
+      else {
+        res.status(200).json(results.rows);
+      }
+  });
+};
+
+const getStudents = (req,res) => {
+  pool.query("SELECT * FROM student", (error,results) => {
+      if (error) throw error;
+      res.status(200).json(results.rows);
+  });
+};
+
+const getoneStudent = (req,res) => {
+  const id = Number(req.params.id);
+  pool.query("SELECT firstname_student,lastname_student, email_student FROM student WHERE id_student = $1",[id], (error,results) => {
+      if (error) throw error;
+      res.status(200).json(results.rows);
+  });
+};
+
+const getCompany = (req, res) => {
+  pool.query("select id_company as value, name_company as label from company", (error,results) => {
+      if (error) throw error;
+      res.status(200).json(results.rows);
+  });
+};
+
+const getStudentsemail = (req, res) => {
+  pool.query("select email_student as email from student", (error,results) => {
+      if (error) throw error;
+      res.status(200).json(results.rows);
+  });
+};
+
+const getuniversity = (req, res) => {
+  pool.query("select id_university as value, name_university as label from university", (error,results) => {
+      if (error) throw error;
+      res.status(200).json(results.rows);
+  });
+};
+
+const getspeciality = (req, res) => {
+  pool.query("select id_speciality as value, name_speciality as label from speciality", (error,results) => {
+      if (error) throw error;
+      res.status(200).json(results.rows);
+  });
 };
 
 const createStudent = (req, res) => {
@@ -224,56 +168,31 @@ const loginStudent = (req, res) => {
   });
 };
 
-const getavisOfStudent = (req,res) => {
-  pool.query("SELECT * FROM avis", (error,results) => {
-      if (error) throw error;
-      res.status(200).json(results.rows);
-  });
+const createAvis = (req, res) => {
+  const avis = req.body.avis;
+  const date = req.body.date;
+  const ids = req.body.ids;
+  const idc = req.body.idc;
+  const note = req.body.note;
+  const title = req.body.title;
+  pool.query('INSERT INTO avis ( text_avis, date_avis, fk_student, fk_company, note_avis, title_avis) VALUES ($1, $2, $3, $4, $5,$6)', [ avis,date,ids,idc,note,title], (error,results) => {
+    if (error) {
+      throw error
+    }
+    res.status(201).send(`idavis added: ${ids}`);
+});
 };
 
-
-const getconditions = (req, res) => {
-  const speciality = Number(req.params.idspec);
-  const university = Number(req.params.iduniv);
-  pool.query("SELECT * FROM avis, student WHERE id_student = fk_student AND fk_speciality ="+speciality+"AND fk_university ="+university, (error,results) => {
-      if (error) throw error;
-      res.status(200).json(results.rows);
-  });
+const createCompany = (req, res) => {
+const name = req.body.name;
+pool.query('INSERT INTO company (name_company) VALUES ($1)', [name], (error, results) => {
+  if (error) {
+    throw error
+  }
+  res.status(201).send(`company added: ${name}`)
+})
 };
 
-const getCompany = (req, res) => {
-  pool.query("select id_company as value, name_company as label from company", (error,results) => {
-      if (error) throw error;
-      res.status(200).json(results.rows);
-  });
-};
-
-const getAvisofoneStudent = (req,res) => {
-  const id = Number(req.params.id)
-  pool.query("SELECT * FROM avis,company  where fk_company = id_company and fk_student ="+id, (error,results) => {
-      if (error) throw error;
-      if (results.rows == '') {
-        return res.status(404).send('Aucun avis trouvé pour cet étudiant!');
-      }
-      else {
-        res.status(200).json(results.rows);
-      }
-  });
-};
-
-const getoneAvisofoneStudent = (req,res) => {
-  const id = Number(req.params.id);
-  const idavis = Number(req.params.idavis);
-  pool.query("SELECT text_avis as avistext, date_avis as date,note_avis as note,title_avis as title FROM avis WHERE fk_student ="+id+" AND id_avis ="+idavis, (error,results) => {
-      if (error) throw error;
-      if (results.rows == '') {
-        return res.status(404).send('Aucun avis trouvé pour cet étudiant et cet idavis !');
-      }
-      else {
-        res.status(200).json(results.rows);
-      }
-  });
-};
 
 const modifyAvis = (req, res) => {
   const id = Number(req.params.id);
@@ -301,19 +220,29 @@ const deleteAvis = (req, res) => {
   });
 };
 
-const getStudentsemail = (req, res) => {
-  pool.query("select email_student as email from student", (error,results) => {
+
+
+/* --------------------------------------- */
+
+// modif getoneAvis => param idavis
+// modif getavisofonestudent
+// modif getoneAvisofoneStudent
+// modif getoneStudent => param id
+
+
+
+
+
+
+
+/*
+const getavisOfStudent = (req,res) => {
+  pool.query("SELECT * FROM avis", (error,results) => {
       if (error) throw error;
       res.status(200).json(results.rows);
   });
 };
 
-const getuniversity = (req, res) => {
-  pool.query("select id_university as value, name_university as label from university", (error,results) => {
-      if (error) throw error;
-      res.status(200).json(results.rows);
-  });
-};
 
 const getuniversityAvis = (req, res) => {
   pool.query("select distinct id_university as value, name_university as label from university, avis, student where fk_university = id_university and id_student = fk_student;", (error,results) => {
@@ -322,12 +251,7 @@ const getuniversityAvis = (req, res) => {
   });
 };
 
-const getspeciality = (req, res) => {
-  pool.query("select id_speciality as value, name_speciality as label from speciality", (error,results) => {
-      if (error) throw error;
-      res.status(200).json(results.rows);
-  });
-};
+
 
 const getspecialityAvis = (req, res) => {
   const iduniversity = Number(req.params.iduniversity);
@@ -336,7 +260,7 @@ const getspecialityAvis = (req, res) => {
       res.status(200).json(results.rows);
   });
 };
-
+*/
 
 
 module.exports = {
@@ -348,8 +272,8 @@ module.exports = {
     createCompany,
     createStudent,
     loginStudent,
-    getavisOfStudent,
-    getconditions,
+    //getavisOfStudent,
+    getavisSorted,
     getCompany,
     getAvisofoneStudent,
     getoneAvisofoneStudent,
@@ -359,7 +283,7 @@ module.exports = {
     getspeciality,
     getBestAvis,
     getRecentAvis,
-    getuniversityAvis,
-    getspecialityAvis,
+    //getuniversityAvis,
+    //getspecialityAvis,
     deleteAvis,
 };

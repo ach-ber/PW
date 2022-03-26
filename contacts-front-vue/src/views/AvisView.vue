@@ -25,7 +25,7 @@ export default {
   },
 
   beforeCreate() {
-    axios.get('http://localhost:4000/api/avis/'+this.$route.params.id).then(response => this.dataAvis = (response.data[0]));
+    axios.get(this.$store.state.URLAPI+'/avis/'+this.$route.params.id).then(response => this.dataAvis = (response.data[0]));
   },
 }
 

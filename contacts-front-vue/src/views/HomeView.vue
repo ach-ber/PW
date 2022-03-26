@@ -40,8 +40,8 @@ export default {
   },
 
   beforeMount() {
-    axios.get('http://localhost:4000/api/Recentavis').then(response => this.dataRecentavis = (response.data));
-    axios.get('http://localhost:4000/api/Bestavis').then(response => this.dataBestavis = (response.data));
+    axios.get(this.$store.state.URLAPI+'/Recentavis').then(response => this.dataRecentavis = (response.data));
+    axios.get(this.$store.state.URLAPI+'/Bestavis').then(response => this.dataBestavis = (response.data));
   },
 
 }

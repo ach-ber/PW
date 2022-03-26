@@ -1,7 +1,7 @@
 <template>
   <section>
     <article>
-      <h1>Mon Compte</h1>{{ data }}
+      <h1>Mon Compte</h1>
       <div>
         <h2>Mes informations</h2>
       </div>
@@ -23,8 +23,11 @@
       <div>
         <h2>Mes Avis</h2>
       </div>
-      <div>
-        <AvisAccountComponent v-for="avis in dataAvis" :date="avis.date_avis.substring(0,10).replace('-','/').replace('-','/')" :title="avis.title_avis.substring(0,20).concat(' ...')" :company="avis.name_company"  :key="avis.id_avis" :id="avis.id_avis" :avis="avis.text_avis.substring(0,300).concat(' ...')"   :href="urlAvis+avis.id_avis" />
+      <div v-if="!vide">
+        <AvisAccountComponent v-for="avis in dataAvis" :date="avis.date_avis.substring(0,10).replace('-','/').replace('-','/')" :title="avis.title_avis.substring(0,20).concat(' ...')" :company="avis.name_company"  :key="avis.id_avis" :note="avis.note_avis" :id="avis.id_avis" :avis="avis.text_avis.substring(0,300).concat(' ...')"   :href="urlAvis+avis.id_avis" />
+      </div>
+      <div v-if="vide">
+        <label>Aucun avis déposé</label>
       </div>
       
     </article>
@@ -34,7 +37,6 @@
 <script>
 
 const axios = require("axios");
-//import router  from '../router';
 import AvisAccountComponent from '@/components/AvisAccountComponent.vue'
 
 export default {
@@ -46,18 +48,26 @@ export default {
 
   data() {
     return {
-      dataAvis:'aucun avis',
+      dataAvis:[],
       urlAvis:'http://localhost:8081/#/AvisView/',
       dataStudent:'',
+      vide:false,
     }
   },
 
   methods: {
   },
-  beforeCreate() {
-    axios.get('http://localhost:4000/api/student/'+this.$store.state.ID+'/avis').then(response => this.dataAvis = (response.data));
-    axios.get('http://localhost:4000/api/student/'+this.$store.state.ID).then(response => this.dataStudent = (response.data[0]));
+
+  beforeMount() {
+    axios.get(this.$store.state.URLAPI+'/student/'+this.$store.state.ID).then(response => this.dataStudent = (response.data[0]));
+    axios.get(this.$store.state.URLAPI+'/student/'+this.$store.state.ID+'/avis').then((response) => {this.dataAvis = (response.data);})
+    .catch(() => {this.vide = true;})
   },
+
+  updated() {
+    
+  },
+
 
 }
 
@@ -116,7 +126,7 @@ section article>div:nth-child(3)>div>div {
   margin-top: 20px;
 }
 
-section article div:nth-child(3) label {
+section article div:nth-child(3) label, section article div:last-child label {
   font-weight: 500;
   font-size: 20px;
 }

@@ -7,6 +7,7 @@ export default createStore({
     ID:0,
     count:1,
     isConnected:'Pas Connecté',
+    URLAPI:"http://localhost:4000/api",
   },
   getters: {
     
@@ -23,5 +24,7 @@ export default createStore({
     
   },
   modules: {
-  }
+  },
+
+  
 })

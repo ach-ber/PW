@@ -1,5 +1,5 @@
 <template>
-  <a href='http://localhost:8081/#/AvisView/1'>
+  <a href=''>
     <p>{{date}} | {{company}}</p>
     <h2>{{title}}</h2>
     <p>{{ avis }}</p>
@@ -41,7 +41,6 @@ export default {
         this.items.push({ title: 'emptystar', icon: require('@/assets/starEmpty.png') });
       }
     }
-    
     
   },
 };

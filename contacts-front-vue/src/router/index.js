@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import HelloWorld from '../components/HelloWorld.vue'
 import HomeView from '@/views/HomeView.vue'
 import AvisView from '@/views/AvisView.vue'
 import LoginView from '@/views/LoginView.vue'
@@ -10,13 +9,9 @@ import LoginViewBis from '@/views/LoginViewBis.vue'
 import SigninViewBis from '@/views/SigninViewBis.vue'
 import PublishView from '@/views/PublishView.vue'
 import ModifyAvis from '@/views/ModifyAvis.vue'
+import AboutView from '@/views/AboutView.vue'
 
 const routes = [
-  {
-    path: '/HelloWorld',
-    name: 'HelloWorld',
-    component: HelloWorld
-  },
   {
     path: '/ModifyAvis/:id',
     name: 'ModifyAvis',
@@ -70,10 +65,7 @@ const routes = [
   {
     path: '/about',
     name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    component:AboutView
   }
 ]
 
@@ -86,12 +78,12 @@ export default router;
 
 router.beforeEach((to, from, next) => {
   // redirect to login page if not logged in and trying to access a restricted page
-  const privatePages = ['/AccountView',];
+  const privatePages = ['/AccountView','/PublishView','/ModifyAvis/:id'];
   const authRequired = privatePages.includes(to.path);
-  const loggedIn = sessionStorage.getItem('token');
+  const loggedIn = (sessionStorage.getItem('userId') && sessionStorage.getItem('token'));
 
   if (authRequired && !loggedIn) {
-    return next('/LoginView');
+    return next('/LoginViewBis');
   }
 
   next();

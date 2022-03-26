@@ -8,7 +8,13 @@
             <p>{{date}} | {{company}}</p>
             <h2>{{title}}</h2>
             <p>{{ avis }}</p>
-            <p>note : {{ note }}</p>
+            <div>
+              <img :src="items[0].icon">
+              <img :src="items[1].icon">
+              <img :src="items[2].icon">
+              <img :src="items[3].icon">
+              <img :src="items[4].icon">
+            </div>
             <p>Read more</p>
         </a>
         <div>
@@ -30,6 +36,7 @@ export default {
       count:0,
       messagedel:false,
       avisSup:false,
+      items: [],
     }
   },
   methods: {
@@ -43,10 +50,30 @@ export default {
       this.messagedel = false;
     },
     deleteConfirm() {
-      axios.delete('http://localhost:4000/api/student/'+this.$store.state.ID+'/avis/'+this.id);
+      axios.delete(this.$store.state.URLAPI+'/student/'+this.$store.state.ID+'/avis/'+this.id,
+      {
+        headers: {
+          'Authorization': `Basic ${sessionStorage.getItem('token')}` 
+        }
+      });
       this.avisSup = true;
     }
-  }
+  },
+
+  beforeMount() {
+    for (let i = 1; i < 6; i++) {
+      if(this.note - 2*i>=0) {
+        this.items.push({ title: 'fullstar',  icon: require('@/assets/starFull.png') });
+      }
+      else if (this.note - ((2*i)-1)>=0) {
+        this.items.push({ title: 'halfstar', icon: require('@/assets/starHalf.png') });
+      }
+      else {
+        this.items.push({ title: 'emptystar', icon: require('@/assets/starEmpty.png') });
+      }
+    }
+    
+  },
 };
 </script>
 
@@ -118,8 +145,21 @@ export default {
   border: solid 1px #C72902;
 }
 
+.AvisAccount a>div:nth-child(4) {
+  height: 30px;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items:center;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+}
+
+.AvisAccount a>div:nth-child(4) img {
+  height: 30px;
+}
+
 .AvisAccount a{
-    text-decoration: none;
+  text-decoration: none;
 }
 
 .AvisAccount a>p:nth-child(1) {

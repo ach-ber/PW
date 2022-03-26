@@ -4,6 +4,11 @@
       <h2>Login</h2>
       <FormKit name="email" label="Email address" validation="required|email" />
       <FormKit type="password" name="password" label="Password" validation="required" />
+      <ul v-if="errorLogin" class="formkit-messages" aria-live="assertive">
+        <li class="formkit-message" data-message-type="ui">
+          Mot de passe ou adresse email incorrect !
+        </li>
+      </ul>
     </FormKit>
         
   </section>
@@ -26,20 +31,24 @@ export default {
       envoie:"pas envoyé",
       formData:"",
       valuetest:"jazfjzaf@gmail.com",
+      errorLogin:false,
     }
   },
   methods: {
     login() {
-        axios.post('http://localhost:4000/api/login',
+        axios.post(this.$store.state.URLAPI+'/login',
         {
             "email":this.formData.email.toString(),
             "password":this.formData.password.toString()
         }
         ).then((response) => {
             sessionStorage.setItem('token',response.data.token);
+            sessionStorage.setItem('userId',response.data.userId);
             this.$store.state.ID = response.data.userId;
             this.$store.state.isConnected = "Connecté !";
             router.push('/AccountView');
+        }).catch(() => {
+          this.errorLogin = true;
         })
     }
   },

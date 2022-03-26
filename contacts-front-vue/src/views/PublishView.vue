@@ -79,7 +79,7 @@ export default {
 
     Publish() {
       
-        axios.post('http://localhost:4000/api/createavis',
+        axios.post(this.$store.state.URLAPI+'/createavis',
         {
             "avis":this.formDataAvis.avis.toString(),
             "date":this.formDataAvis.date.toString(),
@@ -87,19 +87,28 @@ export default {
             "idc":this.formDataAvis.company.toString(),
             "note":this.formDataAvis.note,
             "title":this.formDataAvis.title.toString()
+        },{
+          headers: {
+            'Authorization': `Basic ${sessionStorage.getItem('token')}` 
+          }
         })
         this.completePublish = true;
         this.$formkit.reset('formPublish');
         //router.push('/test');
     },
     Add() {
-        axios.post('http://localhost:4000/api/createcompany',this.formDataCompany)
+        axios.post(this.$store.state.URLAPI+'/createcompany',this.formDataCompany,
+        {
+          headers: {
+            'Authorization': `Basic ${sessionStorage.getItem('token')}` 
+          }
+        });
         this.completeCompany = true;
         this.$formkit.reset('formcompany');
     }
   },
   updated() {
-    axios.get('http://localhost:4000/api/company').then(response => this.companies = (response.data))
+    axios.get(this.$store.state.URLAPI+'/company').then(response => this.companies = (response.data))
   },
 
 
